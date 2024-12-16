@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\DatabaseService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,15 +46,18 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $replacedTeamName = str_replace(' ', '-', $request->team);
+        $replacedTeamName = str_replace(' ', '', $request->team);
 
         Tenant::create([
             'name' => $request->team,
-            'subdomain' => $replacedTeamName . '127.0.0.1',
+            'subdomain' => $replacedTeamName . '.127.0.0.1',
             'database' => $replacedTeamName,
             'user_id' => $user->id,
         ]);
+
         DB::commit();
+
+        (new DatabaseService())->createTenantDb($replacedTeamName);
 
         event(new Registered($user));
 
