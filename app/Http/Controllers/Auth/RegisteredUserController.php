@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -28,7 +29,7 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
@@ -50,7 +51,7 @@ class RegisteredUserController extends Controller
 
         Tenant::create([
             'name' => $request->team,
-            'subdomain' => $replacedTeamName . '.127.0.0.1',
+            'subdomain' => $replacedTeamName . '.localhost',
             'database' => $replacedTeamName,
             'user_id' => $user->id,
         ]);
