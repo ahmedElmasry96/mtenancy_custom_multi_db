@@ -8,12 +8,13 @@
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
-
+@if(Request::getHost() == 'localhost')
         <div class="mt-4">
             <x-input-label for="team" :value="__('Team')" />
-            <x-text-input id="team" class="block mt-1 w-full" type="text" name="team" :value="old('team')" required autofocus autocomplete="team" />
+            <x-text-input id="team" class="block mt-1 w-full" type="text" name="team" :value="old('team')" autofocus autocomplete="team" />
             <x-input-error :messages="$errors->get('team')" class="mt-2" />
         </div>
+@endif
 
         <!-- Email Address -->
         <div class="mt-4">

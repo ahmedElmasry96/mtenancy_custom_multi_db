@@ -31,34 +31,36 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'team' => ['required', 'string', 'max:255', 'unique:tenants,name'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        DB::beginTransaction();
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        $replacedTeamName = str_replace(' ', '', $request->team);
+        if(request()->getHost() == 'localhost') {
+            $request->validate([
+                'team' => ['required', 'string', 'max:255', 'unique:tenants,name'],
+            ]);
 
-        Tenant::create([
-            'name' => $request->team,
-            'subdomain' => $replacedTeamName . '.localhost',
-            'database' => $replacedTeamName,
-            'user_id' => $user->id,
-        ]);
+            $replacedTeamName = str_replace(' ', '', $request->team);
 
-        DB::commit();
+            Tenant::create([
+                'name' => $request->team,
+                'subdomain' => $replacedTeamName . '.localhost',
+                'database' => $replacedTeamName,
+                'user_id' => $user->id,
+            ]);
+            (new DatabaseService())->createTenantDb($replacedTeamName);
+        }
 
-        (new DatabaseService())->createTenantDb($replacedTeamName);
 
         event(new Registered($user));
 

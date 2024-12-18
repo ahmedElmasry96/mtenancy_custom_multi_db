@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateUser;
 use App\Http\Middleware\TenantMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             TenantMiddleware::class,
+        ]);
+        $middleware->alias([
+            'auth' => AuthenticateUser::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
